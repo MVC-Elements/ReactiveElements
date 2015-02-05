@@ -1,25 +1,27 @@
-/** @jsx React.DOM */
 /* @jsx React.DOM */
 window.LGI = {};
 
-window.LGI.Carusel = React.createClass({displayName: 'Carusel',
+window.LGI.Carusel = React.createClass({
     getInitialState: function() {
         return {
             color: '#000000'
         };
     },
+    attributeChanged: function(name, oldValue, newValue) {
+        console.log('Attribute ' + name + ' was changed from ' + oldValue + ' to ' + newValue);
+    },
     render: function() {
         var rows = [];
 
         if (this.props.items === undefined) {
-            return React.DOM.div(null);
+            return <div></div>;
         }
 
         this.props.items.forEach(function(item) {
-            rows.push(React.DOM.li( {key:item.text}, item.text));
+            rows.push(<li key={item.text}>{item.text}</li>);
         });
 
-        return React.DOM.div(null, "<my-reactive-element>",React.DOM.ul( {style:this.state}, rows),"</my-reactive-element>");
+        return <div>&lt;my-reactive-element&gt;<ul style={this.state}>{rows}</ul>&lt;/my-reactive-element&gt;</div>;
     },
     changeColor: function(color) {
         this.state.color = color;

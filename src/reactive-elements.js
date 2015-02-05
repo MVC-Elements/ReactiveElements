@@ -1,5 +1,6 @@
-(function (w) {
+React = typeof React === 'object' ? React : require('react');
 
+(function (w) {
     var PROPERTY_DELIMITER_CHARACTERS = [':', '-', '_'];
 
     var registrationFunction = (document.registerElement || document.register).bind(document);
@@ -10,24 +11,29 @@
 
     var registerReact = function (elementName, reactClass) {
         var elementPrototype = Object.create(HTMLElement.prototype);
+
         elementPrototype.createdCallback = function () {
             this._content = getContentNodes(this);
-            this.reactiveElement = {};
-            this.reactiveElement = new reactClass(getAllProperties(this, this.attributes));
+            var reactElement = React.createElement(reactClass, getAllProperties(this, this.attributes));
+
+            //Since React v0.12 API was changed, so need a check for current API
+            this.reactiveElement = React.render(reactElement, this);
+
             extend(this, this.reactiveElement);
+
             getterSetter(this, 'props', function () {
                 return this.reactiveElement.props;
             }, function (value) {
-                this.reactiveElement.props = value;
+                this.reactiveElement.setProps(value);
             });
-
-            //Since React v0.12 API was changed, so need a check for current API
-            React.render ? React.render(this.reactiveElement, this) : React.renderComponent(this.reactiveElement, this);
         };
 
-        elementPrototype.attributeChangedCallback = function () {
+        elementPrototype.attributeChangedCallback = function (name, oldValue, newValue) {
             this.reactiveElement.props = getAllProperties(this, this.attributes);
             this.reactiveElement.forceUpdate();
+            if (this.reactiveElement.attributeChanged !== undefined) {
+                this.reactiveElement.attributeChanged.bind(this)(name, oldValue, newValue);
+            }
         }
 
         registrationFunction(elementName, {
@@ -36,6 +42,9 @@
     };
 
     document.registerReact = registerReact;
+    if (typeof module === 'object' && module.exports) {
+        module.exports = registerReact;
+    }
 
     if (w.xtag !== undefined) {
         w.xtag.registerReact = registerReact;
