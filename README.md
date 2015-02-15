@@ -34,7 +34,7 @@ MyComponent = React.createClass({
 document.registerReact('my-react-component', MyComponent);
 ```
 
-**Find complete examples in corresponding folder.**
+**Find demo in corresponding folder.**
 
 Nesting
 -------
@@ -55,6 +55,20 @@ attributeChanged: function(attributeName, oldValue, newValue) {
     console.log('Attribute ' + attributeName + ' was changed from ' + oldValue + ' to ' + newValue);
     this.props[attributeName] = parseInt(newValue);
 }
+```
+
+Communicate via DOM events
+---------------------------
+You may trigger DOM event from React component by using following snippet:
+```html
+var event = new CustomEvent('change', {
+      bubbles: true
+    });
+this.getDOMNode().dispatchEvent(event)
+```
+Subscribing to DOM events is similar:
+```html
+this.getDOMNode().addEventListener('change', function(e){...});
 ```
 
 NPM and Bower
