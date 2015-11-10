@@ -5,15 +5,13 @@
 Convert React.js components into Web Components
 ===============================================
 
-Compatible with any [custom elements](http://w3c.github.io/webcomponents/spec/custom/) implementation or [polyfill](https://github.com/WebReflection/document-register-element).
-
-[Demo](http://pixelscommander.com/polygon/reactive-elements/example/)
+[Live demo](http://pixelscommander.com/polygon/reactive-elements/example/)
 
 *UPD* Convert Angular and Backbone views as well with [MVC elements project](https://github.com/MVC-Elements)
 
-Example
+How to use?
 -------
-**Using component in HTML**
+**Placing component in a pure HTML**
 
 ```html
 <body>
@@ -21,13 +19,13 @@ Example
 </body>
 ```
 
-**React component definition**
+**React class definition**
 ```js
 /* @jsx React.DOM */
 MyComponent = React.createClass({
   render: function() {
-    console.log(this.props.items);
-    console.log(this.props._content); // original tag contents in a <content>
+    console.log(this.props.items); // passed as HTML tag`s argument
+    console.log(this.props.children); // original tag children
     return <ul><li>React content</li></ul>;
   }
 });
@@ -39,13 +37,24 @@ document.registerReact('my-react-component', MyComponent);
 
 Nesting
 -------
-Original content of a custom element is injected to component as ```this.props._content```.
+Original children of a custom element is injected to component as ```this.props.children```.
 
 ```html
 <my-react-component>Hello world</my-react-component>
 ```
 
-In this case props._content is equal to "Hello world".
+In this case props.children is equal to "Hello world".
+
+Container node of the element is passed as ```this.props.container```. Both props.container and props.children have type of ```documentFragment```.
+
+Exposing components methods on custom element
+---------------------------------------------
+If you want to expose React component methods on custom element - assign them to component as following:
+```html
+componentDidMount: function() {
+    this.props.container.setTextContent = this.setTextContent.bind(this);
+    ...
+```
 
 Handling attributes change
 --------------------------
@@ -65,11 +74,11 @@ You may trigger DOM event from React component by using following snippet:
 var event = new CustomEvent('change', {
       bubbles: true
     });
-this.getDOMNode().dispatchEvent(event)
+React.findDOMNode(this).dispatchEvent(event)
 ```
 Subscribing to DOM events is similar:
 ```html
-this.getDOMNode().addEventListener('change', function(e){...});
+React.findDOMNode(this).addEventListener('change', function(e){...});
 ```
 
 NPM and Bower
